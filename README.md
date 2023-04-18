@@ -32,8 +32,19 @@ Easy way to integrate flutter_webrtc in your app.
 - flutter_webrtc ^0.9.24
 - This sdk is developed under Flutter 3.7.6, Dart 2.19.3
 - omnitalk service id, service key
+- compatible library version 21+
+
 
 ## Getting started
+
+### 0. Set your minimun sdk requirements
+Go to android>app>build.gradle in your working directory.
+
+    // compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 33
+    
+    // minSdkVersion flutter.minSdkVersion
+    minSdkVersion 21
 
 ### 1. Visit [omnitalk.io](https://omnitalk.io/demo/video) to get omnitalk service id and service key
 
@@ -45,28 +56,28 @@ You can get a test key for 1 hour
 
 Add following lines to `pubspec.yaml` under dependencies
 
-```
+
     dependencies:
         omnitalk_sdk: 0.0.1
         flutter_webrtc ^0.9.24
-```
 
-or you can add it by runnning code below in terminal
 
-```
+or you can add it by runnning code below in terminal.
+
+
     flutter pub add omnitalk_sdk
-```
+
 
 ### 3. Initialize Omnitalk instance with your service id and key
 
     final Omnitalk omnitalk;
     omnitalk = Omnitalk(service id, service key)
 
-### 4. Get you RTCVideoRenderer
+### 4. Get your RTCVideoRenderer
 
 Omnitalk supports 32 users at the same time.
-<br/>
-Declare renderers and pass it publish() or subscribe() for its use.
+
+Declare renderers and pass them publish() for local or subscribe() for remote according to its use.
 
 ## Usage
 
@@ -95,7 +106,7 @@ By publishing you start broadcasting. Pass the RTCVideoRenderer localrenderer an
 
 **4) subscribe**
 
-To subscribe other broadcasting, pass the publish index. You can get publish_index by listening 'BROADCASTING_EVENT' from server. OryYou can get participants list before you subscribe.
+To subscribe other broadcasting, pass the publish index. You can get publish_index by listening 'BROADCASTING_EVENT' from server. Or you can get participants' list before you subscribe.
 
      var partiResult = await omnitalk.partiList(roomId);
 
