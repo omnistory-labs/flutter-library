@@ -17,7 +17,23 @@ Flutter SDK for real-time communication API based on WebRTC.
 
 Easy way to integrate flutter_webrtc in your app.
 
-![O_logo](https://ibb.co/y5NGfhR)
+### Sample code
+<details> 
+<summary>
+how to run sample code
+ </summary>
+ <div>
+ 
+
+ 1. download sample folder
+ 2. open it in VSC(recommended)
+ 3. replace the service id, service key argument with active ones in lib>screen>video_conference.dart
+ * You can get a test key for free
+ </div>
+</details>
+
+<br>
+
 
 ## Features
 
@@ -48,9 +64,14 @@ Go to android>app>build.gradle in your working directory.
 
 ### 1. Visit [omnitalk.io](https://omnitalk.io/demo/video) to get omnitalk service id and service key
 
-You can get a test key for 1 hour
+<details>
+<summary>
+You can also get a one-hour test key
+</summary>
 
-![testkey](https://ibb.co/zhLPMgm)
+![testkey](/img/testkey.png)
+</details>
+<br>
 
 ### 2. Import omnitalk_sdk in your app
 
