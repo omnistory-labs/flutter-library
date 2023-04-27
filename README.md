@@ -17,6 +17,8 @@ Flutter SDK for real-time communication API based on WebRTC.
 
 Easy way to integrate flutter_webrtc in your app.
 
+<img src = "./img/example_3.jpg" width=250>
+
 ### Sample code
 
 <details> 
