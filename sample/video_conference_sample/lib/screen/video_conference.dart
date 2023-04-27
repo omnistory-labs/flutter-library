@@ -18,7 +18,8 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   String _roomSubject = ' ';
   String? selectedRoomId = ' ';
   var roomId;
-  final List<dynamic> _roomList = [];
+  List<dynamic> _roomList = [];
+  List partiList = [];
 
   RTCVideoRenderer localVideo = RTCVideoRenderer();
   RTCVideoRenderer remoteVideo1 = RTCVideoRenderer();
@@ -28,24 +29,16 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   int count = 1;
   List<bool> flags = [false, false, false];
 
-  List partiList = [];
 
-  var session;
   var _futureRoomList;
-  bool isDropdonwSelected = false;
-  // late Timer _debounce;
-  final TextEditingController _inputController = TextEditingController();
-  var tempo = '';
-  final FocusNode focusnode = FocusNode();
-  bool isBroadcastingStarted = false;
   Timer? _debounce;
-  void _onInputChanged() {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {});
-  }
+  final TextEditingController _inputController = TextEditingController();
+  final FocusNode focusnode = FocusNode();
+  bool isDropdonwSelected = false;
+  bool isBroadcastingStarted = false;
+  
 
   _VideoConferenceDemoState()
-      //replace the service id, service key with active ones
       : omnitalk = Omnitalk("service id", "service key") {
     omnitalk.onmessage = (event) async {
       switch (event["cmd"]) {
@@ -57,7 +50,6 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
               publish_idx: event["publish_idx"],
               remoteRenderer: renderers[count]);
           setState(() {
-            // flags[count] = true;
             count++;
           });
           break;
@@ -74,27 +66,19 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
 
   _onCreateSession() async {
     await omnitalk.getPermission();
-    session = await omnitalk.createSession();
+    var session = await omnitalk.createSession();
 
     sessionId = session["session"];
-    // _roomList = await omnitalk.roomList();
-
+    
     return await omnitalk.roomList();
   }
 
-  // _getRoomList()async{
-  //   _roomList = await omnitalk.roomList();
-  //   return _roomList;
-  // }
 
   _onJoinRoom() async {
     await omnitalk.joinRoom(room_id: selectedRoomId);
-    print("------- on join room ------");
   }
 
   _onCreateJoinRoom() async {
-    print("---- 방 새로 만들기 button -----");
-    print(_roomSubject);
     var roomObj = await omnitalk.createRoom(subject: _roomSubject);
     roomId = roomObj?["room_id"];
     await omnitalk.joinRoom(room_id: roomId);
@@ -109,7 +93,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
     );
 
     await omnitalk.leave(sessionId);
-    // _inputController.dispose();
+    _inputController.dispose();
     await localVideo.dispose();
   }
 
@@ -151,6 +135,11 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
     });
     await _onCreateJoinRoom();
     focusnode.unfocus(disposition: UnfocusDisposition.previouslyFocusedChild);
+  }
+
+  void _onInputChanged() {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {});
   }
 
   @override
