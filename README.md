@@ -18,22 +18,74 @@ Flutter SDK for real-time communication API based on WebRTC.
 Easy way to integrate flutter_webrtc in your app.
 
 ### Sample code
+
 <details> 
 <summary>
 how to run sample code
  </summary>
  <div>
- 
 
- 1. download sample folder
- 2. open it in VSC(recommended)
- 3. replace the service id, service key argument with active ones in lib>screen>video_conference.dart
- * You can get a test key for free
+- api_test sample is a testbed for testing functionaliy. You can check how each api works with it.
+
+- video_conference is a simple app for real time video conference.
+
+1.  download the sample
+2.  open it in VSC(recommended) and run `flutter pub get`
+3.  replace the service id, service key argument with active ones in lib>screen>video_conference.dart
+
+- You can get a 1-hour test key for free
+
+<div style="display:flex;">
+  <div style="flex:1; margin-right:5px;">
+    <img src="./img/api_test_sample.jpg" style="max-width:100%; width:250px;">
+  </div>
+  <div style="flex:1; margin-right:5px;">
+    <img src="./img/example_2.jpg" style="max-width:100%; width:250px;">
+  </div>
+  <div style="flex:1;">
+    <img src="./img/example_3.jpg" style="max-width:100%; width:250px;">
+  </div>
+</div>
+
+
+
+- If you want to use the code in your app, make sure these below. The sample codes we provide already have set them and you don't need further job.
+
+  - minimun sdk version
+
+  android>app>build.gradle
+
+  compileSdkVersion is 33, minSdkVersion 21
+
+  - device permission
+    - android>app>src>main>AndroidManifest.xml
+
+  ```
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+  <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.BLUETOOTH" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  ```
+
+       - ios>Runner>info.plist
+
+  ```
+  <key>NSCameraUsageDescription</key>
+  <string>$(PRODUCT_NAME) Camera Usage!</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>$(PRODUCT_NAME) Microphone Usage!</string>
+  ```
+
  </div>
 </details>
 
 <br>
-
 
 ## Features
 
@@ -50,15 +102,15 @@ how to run sample code
 - omnitalk service id, service key
 - compatible library version 21+
 
-
 ## Getting started
 
 ### 0. Set your minimun sdk requirements
+
 Go to android>app>build.gradle in your working directory.
 
     // compileSdkVersion flutter.compileSdkVersion
     compileSdkVersion 33
-    
+
     // minSdkVersion flutter.minSdkVersion
     minSdkVersion 21
 
@@ -70,6 +122,7 @@ You can also get a one-hour test key
 </summary>
 
 ![testkey](/img/testkey.png)
+
 </details>
 <br>
 
@@ -77,17 +130,13 @@ You can also get a one-hour test key
 
 Add following lines to `pubspec.yaml` under dependencies
 
-
     dependencies:
         omnitalk_sdk: 0.0.1
         flutter_webrtc ^0.9.24
 
-
 or you can add it by runnning code below in terminal.
 
-
     flutter pub add omnitalk_sdk
-
 
 ### 3. Initialize Omnitalk instance with your service id and key
 
