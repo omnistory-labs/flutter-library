@@ -27,7 +27,7 @@ how to run sample code
  </summary>
  <div>
 
-- api_test sample is a testbed for testing functionaliy. You can check how each api works with it.
+- api_test sample is a testbed for testing functionality. You can check how each api works with it.
 
 - video_conference is a simple app for real time video conference.
 
