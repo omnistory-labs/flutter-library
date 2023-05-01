@@ -144,7 +144,7 @@ Add following lines to `pubspec.yaml` under dependencies
         omnitalk_sdk: 0.0.1
         flutter_webrtc ^0.9.24
 
-or you can add it by runnning code below in terminal.
+or you can add it by running code below in terminal.
 
     flutter pub add omnitalk_sdk
 
@@ -157,11 +157,11 @@ or you can add it by runnning code below in terminal.
 
 Omnitalk supports 32 users at the same time.
 
-Declare renderers and pass them publish() for local or subscribe() for remote according to its use.
+Declare renderers and pass them as an argument to publish() for local or to subscribe() for remote according to its use.
 
 ## Usage
 
-In order to make a real-time video conference (omnitalk will expand it to video call, audio call, audio conference and others any time soon), you might need these methods below.
+To establish a real time video conference using Omnitalk's platform (with plans to introduce features such as audio calls, conferences, and more), the following methods may be useful.
 
 **1) create session**
 
