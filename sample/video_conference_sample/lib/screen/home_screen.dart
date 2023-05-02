@@ -83,7 +83,8 @@ class _Image extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // return const Text('this will be Video display');
-    return Center(child: Image.asset('asset/img/home_img.png'));
+    // return Center(child: Image.asset('asset/img/home_img.png'));
+    return Center();
   }
 }
 

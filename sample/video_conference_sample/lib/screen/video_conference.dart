@@ -39,7 +39,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   
 
   _VideoConferenceDemoState()
-      : omnitalk = Omnitalk("service id", "service key") {
+      : omnitalk = Omnitalk("FM51-HITX-IBPG-QN7H", "FWIWblAEXpbIims") {
     omnitalk.onmessage = (event) async {
       switch (event["cmd"]) {
         case "SESSION_EVENT":
@@ -112,6 +112,9 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   _onPubSub() async {
     await omnitalk.publish(localRenderer: localVideo);
     var partiResult = await omnitalk.partiList(roomId);
+    print("---------partiList-------");
+    print(partiResult);
+
     for (var parti in partiResult) {
       int pubIdx = parti["publish_idx"];
       partiList.add(pubIdx);

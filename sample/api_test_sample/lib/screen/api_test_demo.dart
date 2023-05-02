@@ -39,7 +39,7 @@ class _FlutterDemoState extends State<FlutterDemo> {
   _FlutterDemoState()
       // replace service id and service key with active ones
       // you can get a test key for 1 hour (visit omnitalk.io/demo/video)
-      : omnitalk = Omnitalk("service id", "service key") {
+      : omnitalk = Omnitalk("FM51-HITX-IBPG-QN7H", "FWIWblAEXpbIims") {
     omnitalk.onmessage = (event) async {
       switch (event["cmd"]) {
         case "SESSION_EVENT":
