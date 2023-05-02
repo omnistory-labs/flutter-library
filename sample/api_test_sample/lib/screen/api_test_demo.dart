@@ -77,7 +77,9 @@ class _FlutterDemoState extends State<FlutterDemo> {
 
     sessionId = session["session"];
 
-    // var roomlist = await omnitalk.roomList();
+    var roomlist = await omnitalk.roomList();
+    print('roomlist : ');
+    print(roomlist);
     // var device = await omnitalk.getDeviceList();
   }
 

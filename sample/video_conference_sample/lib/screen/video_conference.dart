@@ -112,9 +112,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   _onPubSub() async {
     await omnitalk.publish(localRenderer: localVideo);
     var partiResult = await omnitalk.partiList(roomId);
-    print("---------partiList-------");
-    print(partiResult);
-
+   
     for (var parti in partiResult) {
       int pubIdx = parti["publish_idx"];
       partiList.add(pubIdx);
