@@ -179,14 +179,14 @@ Make a room and join the room. You can get a room list first before make a room.
 
 **3) publish**
 
-By publishing you start broadcasting. Pass the RTCVideoRenderer localrenderer and add it in your UI widget.
+By publishing you start broadcasting. Pass the RTCVideoRenderer localrenderer and add it to your UI widget.
 
     publishIdx = await omnitalk.publish(
             callType: "videocall", record: false, localRenderer: localVideo);
 
 **4) subscribe**
 
-To subscribe other broadcasting, pass the publish index. You can get publish_index by listening 'BROADCASTING_EVENT' from server. Or you can get participants' list before you subscribe.
+To subscribe other broadcasting, pass the publish index. You can get publish_index by listening to 'BROADCASTING_EVENT' from server. Or you can get participants' list before you subscribe one.
 
      var partiResult = await omnitalk.partiList(roomId);
 
