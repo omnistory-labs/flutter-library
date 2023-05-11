@@ -107,6 +107,11 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_plugins:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_webrtc:
     dependency: "direct main"
     description:
@@ -115,6 +120,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.26"
+  fluttertoast:
+    dependency: "direct main"
+    description:
+      name: fluttertoast
+      sha256: "2f9c4d3f4836421f7067a28f8939814597b27614e021da9d63e5d3fb6e212d25"
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.2.1"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      sha256: "3bc132a9dbce73a7e4a21a17d06e1878839ffbf975568bc875c60537824b0c4d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.18.1"
   js:
     dependency: transitive
     description:
@@ -159,10 +180,10 @@ packages:
     dependency: "direct main"
     description:
       name: omnitalk_sdk
-      sha256: "660fc4350661313c97e94154cda44ac268f5abd53ac0b1b22478dc1221288a60"
+      sha256: "2a63bcfe5cf137f1ca96045193f17ce62537bdd141ca05ac894263b48c92be76"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.4"
+    version: "0.1.11"
   path:
     dependency: transitive
     description:
