@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:omnitalk_sdk/omnitalk_sdk.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:omnitalk_sdk/omnitalk_sdk.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ChattingDemo extends StatefulWidget {
   const ChattingDemo({super.key});
@@ -16,29 +16,35 @@ class _ChattingDemoState extends State<ChattingDemo> {
   String sessionId = '';
   String userId = '';
   List listMessage = [];
-  // Future<dynamic>? _futureInit;
-
-  final bool _isUserFocused = false;
-  final bool _isSecretFocused = false;
 
   final TextEditingController _userInputController = TextEditingController();
   final TextEditingController _secretInputController = TextEditingController();
   final TextEditingController _chattingInputController =
       TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   final FocusNode _userFocusnode = FocusNode();
   final FocusNode _secretFocusnode = FocusNode();
-
-  Timer? _debounce;
 
   bool _isUserInputDone = false;
   bool _isSecretInputDone = false;
   bool _isUserInputVisible = true;
   bool _isButtonEnabled = true;
-  bool _isSessionClosed = false;
+
+  onDataRoomJoin(String username) {
+    print('"$username" Joined Chatting Room');
+  }
 
   onMessageReceived(event) {
     listMessage.add(event);
+    _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + 100,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut);
+  }
+
+  onLeaveEvent(String username) {
+    print('User "$username" Left Chatting Room');
   }
 
   _onButtonPressed() async {
@@ -73,12 +79,8 @@ class _ChattingDemoState extends State<ChattingDemo> {
     });
   }
 
-  _sendDataMessasge(message) async {
-    await omnitalk.sendDataMessage(message: message);
-  }
-
   void _onTypeChattingPressed() async {
-    if (_chattingInputController.text != null) {
+    if (_chattingInputController.text.isNotEmpty) {
       var message = _chattingInputController.text;
 
       await omnitalk.sendDataMessage(message: message);
@@ -87,18 +89,14 @@ class _ChattingDemoState extends State<ChattingDemo> {
         _isUserInputVisible = false;
       });
     } else {
-      Fluttertoast.showToast(msg: "nothing to send");
+      Fluttertoast.showToast(
+          msg: "nothing to send",
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.orange,
+          fontSize: 16,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_SHORT);
     }
-  }
-
-  _onUserInputChanged() {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {});
-  }
-
-  _onSecretInputChanged() {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {});
   }
 
   _onLeave() async {
@@ -106,14 +104,6 @@ class _ChattingDemoState extends State<ChattingDemo> {
     _userInputController.dispose();
     _secretInputController.dispose();
     _chattingInputController.dispose();
-    // _isSessionClosed = true;
-  }
-
-  _closeSession() {
-    setState(() {
-      _isSessionClosed = true;
-    });
-    _onLeave();
   }
 
   Future<String> _futureInit() async {
@@ -122,10 +112,11 @@ class _ChattingDemoState extends State<ChattingDemo> {
   }
 
   _ChattingDemoState()
-      : omnitalk = Omnitalk("FM51-HITX-IBPG-QN7H", "FWIWblAEXpbIims") {
+      : omnitalk = Omnitalk("service id", "service key") {
     omnitalk.onDataMessage = (event) async {
       switch (event["textroom"]) {
         case "join":
+          onDataRoomJoin(event["username"]);
           break;
         case "message":
           setState(() {
@@ -133,7 +124,7 @@ class _ChattingDemoState extends State<ChattingDemo> {
           });
           break;
         case "leave":
-          _onLeave();
+          onLeaveEvent(event["username"]);
           break;
         default:
           break;
@@ -149,141 +140,138 @@ class _ChattingDemoState extends State<ChattingDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          "Chatting Room",
-          style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: Colors.orange[800],
-        foregroundColor: Colors.white,
-        actions: <Widget>[
+      appBar: appBar(),
+      body: Column(
+        children: [
+          Visibility(
+            visible: _isUserInputVisible,
+            child: Row(
+              children: [
+                userInput(),
+                const SizedBox(
+                  width: 10,
+                ),
+                secretInput(),
+                const SizedBox(
+                  width: 10,
+                ),
+                createRoomButton()
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          displayChatting(),
+        ],
+      ),
+      bottomNavigationBar: appBottomBar(),
+    );
+  }
+
+  BottomAppBar appBottomBar() {
+    return BottomAppBar(
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _chattingInputController,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                  hintText: "Type your message",
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16, horizontal: 16.0),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.orange),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orangeAccent))),
+            ),
+          ),
           IconButton(
-            onPressed: _isSessionClosed ? null : _onLeave,
-            icon: const Icon(Icons.exit_to_app_outlined),
-            tooltip: 'Leave',
+            icon: const Icon(Icons.send_rounded),
+            onPressed: _onTypeChattingPressed,
+            color: Colors.orange[800],
           )
         ],
       ),
-      body: FutureBuilder(
-          future: _futureInit(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else {
-              final dynamic data = snapshot.data ?? [];
-              return Column(
-                children: [
-                  Visibility(
-                    visible: _isUserInputVisible,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _userInputController,
-                            focusNode: _userFocusnode,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.perm_identity,
-                                  color: _isUserInputDone
-                                      ? Colors.grey
-                                      : Colors.orange,
-                                ),
-                                hintText: "User Id",
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.orangeAccent))),
-                            onChanged: (value) {
-                              _onUserInputChanged();
-                            },
-                            enabled: !_isUserInputDone,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: _secretInputController,
-                            focusNode: _secretFocusnode,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.security_rounded,
-                                    color: _isSecretInputDone
-                                        ? Colors.grey
-                                        : Colors.orange),
-                                hintText: "Secret",
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.orangeAccent))),
-                            onChanged: (value) {
-                              _onSecretInputChanged();
-                            },
-                            enabled: !_isSecretInputDone,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        ElevatedButton(
-                          onPressed: _isButtonEnabled ? _onButtonPressed : null,
-                          style: ButtonStyle(
-                              backgroundColor: _isButtonEnabled
-                                  ? MaterialStateProperty.all(
-                                      Colors.orange[800])
-                                  : MaterialStateProperty.all(Colors.grey)),
-                          child: const Text('Create Room'),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      child: chattingListMessage(listMessage),
-                    ),
-                  ),
-                ],
-              );
-            }
-          }),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _chattingInputController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    hintText: "Type your message",
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 16.0),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.orange),
-                    ),
-                    focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orangeAccent))),
-              ),
+    );
+  }
+
+  AppBar appBar() {
+    return AppBar(
+      centerTitle: true,
+      title: const Text(
+        "Chatting Room",
+        style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+      ),
+      backgroundColor: Colors.orange[800],
+      foregroundColor: Colors.white,
+      actions: <Widget>[
+        IconButton(
+          onPressed: _onLeave,
+          icon: const Icon(Icons.exit_to_app_outlined),
+          tooltip: 'Leave',
+        )
+      ],
+    );
+  }
+
+  Expanded displayChatting() {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        child: chattingListMessage(listMessage),
+      ),
+    );
+  }
+
+  ElevatedButton createRoomButton() {
+    return ElevatedButton(
+      onPressed: _isButtonEnabled ? _onButtonPressed : null,
+      style: ButtonStyle(
+          backgroundColor: _isButtonEnabled
+              ? MaterialStateProperty.all(Colors.orange[800])
+              : MaterialStateProperty.all(Colors.grey)),
+      child: const Text('Create Room'),
+    );
+  }
+
+  Expanded secretInput() {
+    return Expanded(
+      child: TextField(
+        controller: _secretInputController,
+        focusNode: _secretFocusnode,
+        textAlign: TextAlign.center,
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.security_rounded,
+                color: _isSecretInputDone ? Colors.grey : Colors.orange),
+            hintText: "Secret",
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.orangeAccent))),
+        enabled: !_isSecretInputDone,
+      ),
+    );
+  }
+
+  Expanded userInput() {
+    return Expanded(
+      child: TextField(
+        controller: _userInputController,
+        focusNode: _userFocusnode,
+        textAlign: TextAlign.center,
+        decoration: InputDecoration(
+            prefixIcon: Icon(
+              Icons.perm_identity,
+              color: _isUserInputDone ? Colors.grey : Colors.orange,
             ),
-            IconButton(
-              icon: const Icon(Icons.send_rounded),
-              onPressed: _onTypeChattingPressed,
-              color: Colors.orange[800],
-            )
-          ],
-        ),
+            hintText: "User Id",
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.orangeAccent))),
+        enabled: !_isUserInputDone,
       ),
     );
   }
@@ -294,6 +282,7 @@ class _ChattingDemoState extends State<ChattingDemo> {
       itemBuilder: (context, index) => buildItem(index, listMessage),
       itemCount: listMessage.length,
       reverse: false,
+      controller: _scrollController,
     );
   }
 

@@ -24,6 +24,8 @@ Easy way to integrate flutter_webrtc in your app.
 <img src = "./img/example_2.jpg" width=250>
 
 <img src = "./img/example_3.jpg" width=250>
+
+<img src = "./img/chattingroom.jpg" width=250>
 </div>
 </div>
 
@@ -104,6 +106,7 @@ how to run sample code
 - join room
 - publish
 - subscribe
+- dataChannel
 
 ## Pre-Requisite
 
@@ -200,6 +203,13 @@ To subscribe other broadcasting, pass the publish index. You can get publish_ind
 
           await omnitalk.subscribe(
               publishIdx: pubidx, remoteRenderer: remoteVideos[i]);
+
+**5) dataChannel**
+
+To make a chatting room, create room with room_type = "dataroom". Omnitalk server streams message, which you can get by listening to the event.
+  ```
+  await omnitalk.createRoom(room_type: "dataroom", secret: secret);
+  ```
 
 ## Feedback
 
