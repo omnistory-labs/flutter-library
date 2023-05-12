@@ -94,6 +94,9 @@ how to run sample code
   <string>$(PRODUCT_NAME) Microphone Usage!</string>
   ```
 
+  * For updated chatting room
+  Uncomment the code in main.dart to test chatting room demo.
+
  </div>
 </details>
 

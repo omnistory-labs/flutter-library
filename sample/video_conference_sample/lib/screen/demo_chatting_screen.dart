@@ -31,8 +31,17 @@ class _ChattingDemoState extends State<ChattingDemo> {
   bool _isUserInputVisible = true;
   bool _isButtonEnabled = true;
 
+  List partilist = [];
+
   onDataRoomJoin(String username) {
     print('"$username" Joined Chatting Room');
+    Fluttertoast.showToast(
+        msg: "$username joined the room",
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.orange,
+        fontSize: 16,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT);
   }
 
   onMessageReceived(event) {
@@ -45,6 +54,22 @@ class _ChattingDemoState extends State<ChattingDemo> {
 
   onLeaveEvent(String username) {
     print('User "$username" Left Chatting Room');
+    Fluttertoast.showToast(
+        msg: "$username left the room",
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.orange,
+        fontSize: 16,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT);
+  }
+
+  getParticipants(event) async {
+    await omnitalk.dataChannelPartiList();
+  }
+
+  addParticipants(event) {
+    partilist = event["participants"];
+    print(partilist);
   }
 
   _onButtonPressed() async {
@@ -60,6 +85,7 @@ class _ChattingDemoState extends State<ChattingDemo> {
     userId = _userInputController.text;
     var session = await omnitalk.createSession(userId);
     sessionId = session["session"];
+    await omnitalk.dataChannelPartiList();
   }
 
   _onDataRoom() async {
@@ -106,22 +132,23 @@ class _ChattingDemoState extends State<ChattingDemo> {
     _chattingInputController.dispose();
   }
 
-  Future<String> _futureInit() async {
-    await Future.delayed(const Duration(microseconds: 500));
-    return 'Data Cahnnel';
-  }
-
   _ChattingDemoState()
-      : omnitalk = Omnitalk("service id", "service key") {
+      : omnitalk = Omnitalk("FM51-HITX-IBPG-QN7H", "FWIWblAEXpbIims") {
     omnitalk.onDataMessage = (event) async {
       switch (event["textroom"]) {
         case "join":
           onDataRoomJoin(event["username"]);
+          getParticipants(event);
           break;
         case "message":
           setState(() {
             onMessageReceived(event);
           });
+          break;
+
+        case "parti_list":
+          addParticipants(event);
+          print(partilist);
           break;
         case "leave":
           onLeaveEvent(event["username"]);
