@@ -109,7 +109,11 @@ how to run sample code
 - join room
 - publish
 - subscribe
+- get room list
+- get participants list
 - dataChannel
+- setAudioMute
+- setVideoMute
 
 ## Pre-Requisite
 
@@ -185,10 +189,38 @@ Make a room and join the room. You can get a room list first before make a room.
 
 **3) publish**
 
-By publishing you start broadcasting. Pass the RTCVideoRenderer localrenderer and add it in your UI widget.
+By publishing you start broadcasting. Pass the RTCVideoRenderer localrenderer and add it to your UI widget. You can also set resolution in publishing. Default resolution is 'HD'. Full description is below.
 
     publishIdx = await omnitalk.publish(
-            callType: "videocall", record: false, localRenderer: localVideo);
+      localRenderer: localVideo,
+            callType: "videocall", record: false, 
+            resolution: 'FHD');
+
+    //in your widget
+    Container(
+                color: Colors.grey,
+                height: 200,
+                width: 160,
+                child: displayOn ? RTCVideoView(localVideo) : null,
+              ),
+
+<details><summary>resolution descriptions</summary>
+<div>
+<table>
+
+| resolution | width * height |
+|----------|----------|
+| QVGA | 320 * 240 |
+| VGA | 640 * 480 |
+| SD | 720 * 480 |
+| HD | 1280 * 720 |
+| FHD | 1920 * 1080 |
+| 2k | 2560 * 1440 |
+| 4k | 1840 * 2160 |
+
+</table>
+</div>
+</details>
 
 **4) subscribe**
 
@@ -210,7 +242,7 @@ To subscribe other broadcasting, pass the publish index. You can get publish_ind
 
 **5) dataChannel**
 
-To make a chatting room, create room with room_type = "dataroom". Omnitalk server streams messages, which you can simply get by listening to the event. You can see the chatting example, API reference and its usage in [omnitalk.io](https://omnitalk.io/docs/flutter/api-reference)
+To make a chatting room, create a room with room_type = "dataroom". Omnitalk server streams messages, which you can simply get by listening to the event. You can see a chatting example, API reference and its usage in [omnitalk.io](https://omnitalk.io/docs/flutter/api-reference)
   ```
   await omnitalk.createRoom(room_type: "dataroom", secret: secret);
   ```
@@ -231,7 +263,7 @@ To make a chatting room, create room with room_type = "dataroom". Omnitalk serve
   ```
 
 **6) setAudio/Video mute
-Pass the boolean toggle value as argument to mute/ unmute the audio. To pause or play video use setVideoMute().
+Pass the boolean toggle value as an argument to mute / unmute the audio. To pause or play video use setVideoMute(). It only controls video images not sound. If you want to mute both image and sound, call both methods.
 ```
 bool toggle = true;
 _onSetAudioMute() async {
