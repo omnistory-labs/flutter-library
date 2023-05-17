@@ -64,7 +64,7 @@ class _ChattingDemoState extends State<ChattingDemo> {
   }
 
   getParticipants(event) async {
-    await omnitalk.dataChannelPartiList();
+    // await omnitalk.dataChannelPartiList();
   }
 
   addParticipants(event) {
@@ -85,7 +85,7 @@ class _ChattingDemoState extends State<ChattingDemo> {
     userId = _userInputController.text;
     var session = await omnitalk.createSession(userId);
     sessionId = session["session"];
-    await omnitalk.dataChannelPartiList();
+    // await omnitalk.dataChannelPartiList();
   }
 
   _onDataRoom() async {
