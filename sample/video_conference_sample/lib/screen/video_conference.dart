@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:omnitalk_sdk/omnitalk_sdk.dart';
@@ -39,7 +40,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   List<bool> isVideoPlayingList = [];
 
   _VideoConferenceDemoState()
-      : omnitalk = Omnitalk("service id", "service key") {
+      : omnitalk = Omnitalk("FM51-HITX-IBPG-QN7H", "FWIWblAEXpbIims") {
     omnitalk.onmessage = (event) async {
       switch (event["cmd"]) {
         case "SESSION_EVENT":
@@ -79,6 +80,8 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
 
   _onCreateJoinRoom() async {
     var roomObj = await omnitalk.createRoom(subject: _roomSubject);
+    print("--------");
+    print(roomObj);
     roomId = roomObj?["room_id"];
     await omnitalk.joinRoom(room_id: roomId);
     isDropdonwSelected = true;
@@ -92,11 +95,12 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
     // );
 
     await omnitalk.leave(sessionId);
-    _inputController.dispose();
+    // _inputController.dispose();
     await localVideo.dispose();
   }
 
-   _onPubSub() async {
+  
+  _onPubSub() async {
     await omnitalk.publish(localRenderer: localVideo);
     var partiResult = await omnitalk.partiList(roomId);
     for (var parti in partiResult) {
@@ -132,6 +136,9 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
 
   _onPuasePressed() async {
     print(sessionId);
+    await omnitalk.setVideoMute(toggle);
+    await omnitalk.setAudioMute(toggle);
+    // toggle = !toggle;
     setState(() {
       toggle = !toggle;
     });
@@ -228,8 +235,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
       ),
     );
   }
-
-   _buildVideoItems(int count) {
+  _buildVideoItems(int count) {
     List<Widget> items = [];
     isVideoPlayingList = List<bool>.filled(count, false);
     print(toggle);
@@ -252,6 +258,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
     return items;
   }
 
+  
 
   ElevatedButton onStartConference() {
     return ElevatedButton(

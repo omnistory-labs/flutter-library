@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_webrtc: ^0.9.26
   fluttertoast: ^8.2.1
-  omnitalk_sdk: ^0.1.11
+  omnitalk_sdk: ^0.1.17
   intl: ^0.18.1
 
 dev_dependencies:

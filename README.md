@@ -23,7 +23,9 @@ Easy way to integrate flutter_webrtc in your app.
 
 <img src = "./img/example_2.jpg" width=250>
 
-<img src = "./img/example_3.jpg" width=250>
+<img src = "./img/fullscreenvideo.jpg" width=250>
+
+<img src = "./img/chattingroom.jpg" width=250>
 </div>
 </div>
 
@@ -56,8 +58,6 @@ how to run sample code
     <img src="./img/example_3.jpg" style="max-width:100%; width:250px;">
   </div>
 </div>
-
-
 
 - If you want to use the code in your app, make sure these below. The sample codes we provide already have set them and you don't need further job.
 
@@ -92,6 +92,9 @@ how to run sample code
   <string>$(PRODUCT_NAME) Microphone Usage!</string>
   ```
 
+  - For updated chatting room
+    Uncomment the code in main.dart to test chatting room demo.
+
  </div>
 </details>
 
@@ -104,6 +107,11 @@ how to run sample code
 - join room
 - publish
 - subscribe
+- get room list
+- get participants list
+- dataChannel
+- setAudioMute
+- setVideoMute
 
 ## Pre-Requisite
 
@@ -179,14 +187,44 @@ Make a room and join the room. You can get a room list first before make a room.
 
 **3) publish**
 
-By publishing you start broadcasting. Pass the RTCVideoRenderer localrenderer and add it in your UI widget.
+
+By publishing you start broadcasting. Pass the RTCVideoRenderer localrenderer and add it to your UI widget. You can also set resolution in publishing. Default resolution is 'HD'. Full description is below.
+
 
     publishIdx = await omnitalk.publish(
-            callType: "videocall", record: false, localRenderer: localVideo);
+      localRenderer: localVideo,
+            callType: "videocall", record: false,
+            resolution: 'FHD');
+
+    //in your widget
+    Container(
+                color: Colors.grey,
+                height: 200,
+                width: 160,
+                child: displayOn ? RTCVideoView(localVideo) : null,
+              ),
+
+<details><summary>resolution descriptions</summary>
+<div>
+<table>
+
+| resolution | width \* height |
+| ---------- | --------------- |
+| QVGA       | 320 \* 240      |
+| VGA        | 640 \* 480      |
+| SD         | 720 \* 480      |
+| HD         | 1280 \* 720     |
+| FHD        | 1920 \* 1080    |
+| 2k         | 2560 \* 1440    |
+| 4k         | 1840 \* 2160    |
+
+</table>
+</div>
+</details>
 
 **4) subscribe**
 
-To subscribe other broadcasting, pass the publish index. You can get publish_index by listening 'BROADCASTING_EVENT' from server. Or you can get participants' list before you subscribe.
+To subscribe other broadcasting, pass the publish index. You can get publish_index by listening to 'BROADCASTING_EVENT' from server. Or you can get participants' list before you subscribe one.
 
      var partiResult = await omnitalk.partiList(roomId);
 
@@ -200,6 +238,51 @@ To subscribe other broadcasting, pass the publish index. You can get publish_ind
 
           await omnitalk.subscribe(
               publishIdx: pubidx, remoteRenderer: remoteVideos[i]);
+        }
+
+**5) dataChannel**
+
+To make a chatting room, create a room with room_type = "dataroom". Omnitalk server streams messages, which you can simply get by listening to the event. You can see a chatting example, API reference and its usage in [omnitalk.io](https://omnitalk.io/docs/flutter/api-reference)
+
+```
+await omnitalk.createRoom(room_type: "dataroom", secret: secret);
+```
+
+```
+omnitalk.onDataMessage = (event) async {
+    switch (event["textroom"]) {
+      case "join":
+        onDataRoomJoin(event["username"]);
+        getParticipants(event);
+        break;
+      case "message":
+        setState(() {
+          onMessageReceived(event);
+        });
+        break;
+    }
+}
+```
+
+\*\*6) setAudio/Video mute
+Pass the boolean toggle value as an argument to mute / unmute the audio. To pause or play video use setVideoMute(). It only controls video images not sound. If you want to mute both image and sound, call both methods.
+
+```
+bool toggle = true;
+_onSetAudioMute() async {
+    await omnitalk.setAudioMute(toggle);
+    toggle = !toggle;
+
+  }
+```
+
+```
+bool toggle = true;
+  _onSetVideoMute() async {
+  await omnitalk.setVideoMute(toggle);
+    toggle = !toggle;
+  }
+```
 
 ## Feedback
 
