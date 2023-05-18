@@ -28,13 +28,15 @@ class _FlutterDemoState extends State<FlutterDemo> {
   RTCVideoRenderer remoteVideo3 = RTCVideoRenderer();
   List<RTCVideoRenderer> remoteVideos = [];
   int count = 0;
-
+  
   List partiList = [];
 
   var session;
 
   bool displayOn = false;
   List<bool> flags = [false, false, false];
+  bool toggle = true;
+  List subSessions = [];
 
   _FlutterDemoState()
       // replace service id and service key with active ones
@@ -93,15 +95,24 @@ class _FlutterDemoState extends State<FlutterDemo> {
     joinResult = await omnitalk.joinRoom(room_id: roomId);
   }
 
-  dynamic _onPublish() async {
-    var publishJson = await omnitalk.publish(
-        call_type: "videocall", record: false, localRenderer: localVideo);
-    publishIdx = publishJson["publish_idx"];
+  _onCreateJoinRoom() async {
+    await _onCreateRoom();
+    await _onJoinRoom();
+  }
 
+  dynamic _onPublish() async {
+    var publishResult = await omnitalk.publish(
+        call_type: "videocall",
+        record: false,
+        localRenderer: localVideo,
+        resolution: '4K');
+
+    publishIdx = publishResult["publish_idx"];
     setState(() {
       displayOn = true;
     });
   }
+
 
   dynamic _onSubscribe() async {
     var partiResult = await omnitalk.partiList(roomId);
@@ -122,6 +133,16 @@ class _FlutterDemoState extends State<FlutterDemo> {
         count++;
       });
     }
+  }
+
+  _onSetAudioMute() async {
+    var result = await omnitalk.setAudioMute(toggle);
+    toggle = !toggle; 
+  }
+
+  _onSetVideoMute() async {
+    var result = await omnitalk.setVideoMute(toggle);
+    toggle = !toggle;
   }
 
   dynamic _onLeave() async {
@@ -175,14 +196,14 @@ class _FlutterDemoState extends State<FlutterDemo> {
                 width: 10,
               ),
               GestureDetector(
-                onTap: () => {_onCreateRoom()},
+                onTap: () => {_onCreateJoinRoom()},
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: Container(
                     color: Colors.grey,
                     height: 100,
                     width: 120,
-                    child: const Text('This is create room'),
+                    child: const Text('This is create & join room'),
                   ),
                 ),
               ),
@@ -190,14 +211,14 @@ class _FlutterDemoState extends State<FlutterDemo> {
                 width: 10,
               ),
               GestureDetector(
-                onTap: () => {_onJoinRoom()},
+                onTap: () => {_onPublish()},
                 child: Align(
                   alignment: Alignment.topRight,
                   child: Container(
                     color: Colors.grey,
                     height: 100,
                     width: 120,
-                    child: const Text('Join room'),
+                    child: const Text('This is publish request'),
                   ),
                 ),
               ),
@@ -209,24 +230,24 @@ class _FlutterDemoState extends State<FlutterDemo> {
           Row(
             children: [
               GestureDetector(
-                onTap: () => {_onPublish()},
+                onTap: () => {_onSubscribe()},
                 child: Container(
                   color: Colors.grey,
                   height: 100,
                   width: 120,
-                  child: const Text('This is publish request'),
+                  child: const Text('This is subscribe'),
                 ),
               ),
               const SizedBox(
                 width: 10,
               ),
               GestureDetector(
-                onTap: () => {_onSubscribe()},
+                onTap: () => {_onSetVideoMute()},
                 child: Container(
                   color: Colors.grey,
                   height: 100,
                   width: 120,
-                  child: const Text('This is subscribe '),
+                  child: const Text('This is to test mute'),
                 ),
               ),
             ],

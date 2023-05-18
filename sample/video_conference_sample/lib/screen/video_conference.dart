@@ -40,7 +40,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   List<bool> isVideoPlayingList = [];
 
   _VideoConferenceDemoState()
-      : omnitalk = Omnitalk("FM51-HITX-IBPG-QN7H", "FWIWblAEXpbIims") {
+      : omnitalk = Omnitalk("service id", "service key") {
     omnitalk.onmessage = (event) async {
       switch (event["cmd"]) {
         case "SESSION_EVENT":
