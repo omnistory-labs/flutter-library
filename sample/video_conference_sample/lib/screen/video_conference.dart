@@ -1,9 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:omnitalk_sdk/omnitalk_sdk.dart';
-import 'package:sample/screen/home_screen.dart';
+// import 'package:sample/screen/home_screen.dart';
 
 class VideoConferenceDemo extends StatefulWidget {
   const VideoConferenceDemo({super.key});
@@ -18,7 +17,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   String _roomSubject = ' ';
   String? selectedRoomId = ' ';
   var roomId;
-  List<dynamic> _roomList = [];
+  final List<dynamic> _roomList = [];
   List partiList = [];
 
   RTCVideoRenderer localVideo = RTCVideoRenderer();
@@ -29,14 +28,15 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   int count = 1;
   List<bool> flags = [false, false, false];
 
-
   var _futureRoomList;
   Timer? _debounce;
   final TextEditingController _inputController = TextEditingController();
   final FocusNode focusnode = FocusNode();
   bool isDropdonwSelected = false;
   bool isBroadcastingStarted = false;
-  
+  bool _isInputVisible = true;
+  bool toggle = true;
+  List<bool> isVideoPlayingList = [];
 
   _VideoConferenceDemoState()
       : omnitalk = Omnitalk("service id", "service key") {
@@ -69,10 +69,9 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
     var session = await omnitalk.createSession();
 
     sessionId = session["session"];
-    
+
     return await omnitalk.roomList();
   }
-
 
   _onJoinRoom() async {
     await omnitalk.joinRoom(room_id: selectedRoomId);
@@ -86,33 +85,20 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
   }
 
   _onLeave() async {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const HomeScreen(),
-      ),
-    );
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (_) => const HomeScreen(),
+    //   ),
+    // );
 
     await omnitalk.leave(sessionId);
     _inputController.dispose();
     await localVideo.dispose();
   }
 
-  _buildVideoItems(int count) {
-    List<Widget> items = [];
-    for (int i = 0; i < count; i++) {
-      items.add(RTCVideoView(
-        renderers[i],
-        objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-        mirror: i == 0 ? true : false,
-      ));
-    }
-    return items;
-  }
-
-  _onPubSub() async {
+   _onPubSub() async {
     await omnitalk.publish(localRenderer: localVideo);
     var partiResult = await omnitalk.partiList(roomId);
-   
     for (var parti in partiResult) {
       int pubIdx = parti["publish_idx"];
       partiList.add(pubIdx);
@@ -127,6 +113,7 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
     setState(() {
       renderers;
     });
+    _isInputVisible = false;
   }
 
   _onCreateNewRoom() async {
@@ -143,6 +130,13 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
     _debounce = Timer(const Duration(milliseconds: 500), () {});
   }
 
+  _onPuasePressed() async {
+    print(sessionId);
+    setState(() {
+      toggle = !toggle;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -151,6 +145,12 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final appbarHeight = AppBar().preferredSize.height;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final availableHeight = screenHeight - appbarHeight;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
@@ -185,105 +185,154 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
                 alignment: Alignment.topCenter,
                 child: Column(
                   children: [
-                    const SizedBox(
-                      height: 17,
-                    ),
-                    DropdownButton(
-                      hint: const Text('Select a room'),
-                      value: roomList
-                              .any((item) => item["room_id"] == selectedRoomId)
-                          ? selectedRoomId
-                          : null,
-                      items: roomList.isNotEmpty
-                          ? roomList.map((item) {
-                              return DropdownMenuItem(
-                                value: item["room_id"],
-                                child: Text(item["subject"]),
-                              );
-                            }).toList()
-                          : null,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedRoomId = value as String;
-                        });
-                        _onJoinRoom();
-                        isDropdonwSelected = true;
-                        roomId = selectedRoomId;
-                      },
-                      iconEnabledColor: Colors.orange,
-                      iconDisabledColor: Colors.grey,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: _inputController,
-                        focusNode: focusnode,
-                        textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.recommend_rounded),
-                            hintText: 'Enter Room Subject',
-                            contentPadding: EdgeInsets.symmetric(vertical: 16)),
-                        onChanged: (value) {
-                          _onInputChanged();
-                        },
-                        enabled: !isDropdonwSelected,
+                    Visibility(
+                      visible: _isInputVisible,
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 17,
+                          ),
+                          onDropDown(roomList),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          onSubjectInput(),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          onCreateRoom(),
+                          const SizedBox(height: 24),
+                          onStartConference(),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ElevatedButton(
-                      onPressed: isDropdonwSelected
-                          ? null
-                          : () {
-                              _onCreateNewRoom();
-                            },
-                      style: ButtonStyle(
-                        backgroundColor: isDropdonwSelected
-                            ? MaterialStateProperty.all<Color>(Colors.grey)
-                            : MaterialStateProperty.all<Color>(
-                                Colors.deepOrangeAccent),
-                        minimumSize: MaterialStateProperty.all<Size>(
-                            const Size(150, 50)),
-                      ),
-                      child: const Text('Create Room'),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        _onPubSub();
-
-                        setState(() {
-                          isBroadcastingStarted = true;
-                          isDropdonwSelected = true;
-                        });
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: isBroadcastingStarted
-                            ? MaterialStateProperty.all<Color>(Colors.grey)
-                            : MaterialStateProperty.all<Color>(
-                                Colors.deepOrangeAccent),
-                        minimumSize: MaterialStateProperty.all<Size>(
-                            const Size(150, 50)),
-                      ),
-                      child: const Text('Start Conference'),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    GridView.count(
-                      shrinkWrap: true,
-                      crossAxisCount: 2,
-                      children: _buildVideoItems(4),
-                    )
+                    onVideo(screenWidth, availableHeight)
                   ],
                 ),
               );
             }
           },
         ));
+  }
+
+  Expanded onVideo(double screenWidth, double availableHeight) {
+    return Expanded(
+      child: GridView.count(
+        // shrinkWrap: true,
+        crossAxisCount: 2,
+        children: _buildVideoItems(4),
+        childAspectRatio: (0.5 * screenWidth) / (0.5 * availableHeight),
+      ),
+    );
+  }
+
+   _buildVideoItems(int count) {
+    List<Widget> items = [];
+    isVideoPlayingList = List<bool>.filled(count, false);
+    print(toggle);
+
+    for (int i = 0; i < count; i++) {
+      print(renderers[i] != null);
+      items.add(
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            // isVideoPlayingList[0] = true;
+            return RTCVideoView(
+              renderers[i],
+              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+              mirror: i == 0 ? true : false,
+            );
+          },
+        ),
+      );
+    }
+    return items;
+  }
+
+
+  ElevatedButton onStartConference() {
+    return ElevatedButton(
+      onPressed: () {
+        _onPubSub();
+
+        setState(() {
+          isBroadcastingStarted = true;
+          isDropdonwSelected = true;
+        });
+      },
+      style: ButtonStyle(
+        backgroundColor: isBroadcastingStarted
+            ? MaterialStateProperty.all<Color>(Colors.grey)
+            : MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+        minimumSize: MaterialStateProperty.all<Size>(const Size(150, 50)),
+      ),
+      child: const Text('Start Conference'),
+    );
+  }
+
+  ElevatedButton onCreateRoom() {
+    return ElevatedButton(
+      onPressed: isDropdonwSelected
+          ? null
+          : () {
+              _onCreateNewRoom();
+            },
+      style: ButtonStyle(
+        backgroundColor: isDropdonwSelected
+            ? MaterialStateProperty.all<Color>(Colors.grey)
+            : MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+        minimumSize: MaterialStateProperty.all<Size>(const Size(150, 50)),
+      ),
+      child: const Text('Create Room'),
+    );
+  }
+
+  SizedBox onSubjectInput() {
+    return SizedBox(
+      width: 250,
+      child: TextField(
+        controller: _inputController,
+        focusNode: focusnode,
+        textAlign: TextAlign.center,
+        decoration: const InputDecoration(
+            prefixIcon: Icon(Icons.recommend_rounded),
+            hintText: 'Enter Room Subject',
+            contentPadding: EdgeInsets.symmetric(vertical: 16)),
+        onChanged: (value) {
+          _onInputChanged();
+        },
+        enabled: !isDropdonwSelected,
+      ),
+    );
+  }
+
+  DropdownButton<Object> onDropDown(List<dynamic> roomList) {
+    return DropdownButton(
+      hint: const Text('Select a room'),
+      value: roomList.any((item) => item["room_id"] == selectedRoomId)
+          ? selectedRoomId
+          : null,
+      items: roomList.isNotEmpty
+          ? roomList.map((item) {
+              return DropdownMenuItem(
+                value: item["room_id"],
+                child: Text(item["subject"]),
+              );
+            }).toList()
+          : null,
+      onChanged: (value) {
+        setState(() {
+          selectedRoomId = value as String;
+        });
+        _onJoinRoom();
+        isDropdonwSelected = true;
+        roomId = selectedRoomId;
+      },
+      iconEnabledColor: Colors.orange,
+      iconDisabledColor: Colors.grey,
+    );
   }
 }
