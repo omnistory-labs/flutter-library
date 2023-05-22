@@ -264,7 +264,7 @@ omnitalk.onDataMessage = (event) async {
 }
 ```
 
-\*\*6) setAudio/Video mute
+**6) setAudio/Video mute**
 Pass the boolean toggle value as an argument to mute / unmute the audio. To pause or play video use setVideoMute(). It only controls video images not sound. If you want to mute both image and sound, call both methods.
 
 ```
@@ -283,6 +283,71 @@ bool toggle = true;
     toggle = !toggle;
   }
 ```
+
+
+**7) Audio/Video input/output**
+
+Pass the device id as an argument to controll audio input/output or video input. For video you need the session id you're in active. You can get the device list using getDevice() APi.
+```
+var devices = await omnitalk.getDeviceList();
+```
+
+<details> <summary> device list example </summary>
+
+  ```
+  {
+    audioinput: 
+    {
+    0: {deviceId: 0, label: bottom}, 
+    1: {deviceId: 2, label: back}}, 
+
+    audiooutput: 
+    {
+    0: {deviceId: speaker, label: Speakerphone}, 
+    1: {deviceId: earpiece, label: Earpiece}}, 
+
+    videoinput: 
+    {
+    0: {deviceId: 0, label: Camera 0, Facing back, Orientation 90}, 
+    1: {deviceId: 1, label: Camera 1, Facing front, Orientation 270}, 
+    2: {deviceId: 2, label: Camera 2, Facing back, Orientation 90}, 
+    3: {deviceId: 3, label: Camera 3, Facing front, Orientation 270}
+    }
+  }
+  ```
+  
+
+</details>
+
+<br>
+
+```
+  _onSetAudioInput() async {
+    isAudioBack
+        ? await omnitalk.setAudioInput('2')
+        : await omnitalk.setAudioInput('0');
+    isAudioBack = !isAudioBack;
+    print('isAudioBack : $isAudioBack');
+  }
+
+  _onSetAudioOutput() async {
+    isEarpiece
+        ? await omnitalk.setAudioOutput('speaker')
+        : await omnitalk.setAudioOutput('earpiece');
+    isEarpiece = !isEarpiece;
+    print('is earpiece on : $isEarpiece');
+  }
+
+  _onSwtichCamera() async {
+    isCameraSwitched
+        ? await omnitalk.setVideoDevice(sessionId, '1')
+        : await omnitalk.setVideoDevice(sessionId, '0');
+    isCameraSwitched = !isCameraSwitched;
+  }
+
+
+````
+
 
 ## Feedback
 
