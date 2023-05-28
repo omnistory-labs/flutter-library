@@ -241,28 +241,8 @@ To subscribe other broadcasting, pass the publish index. You can get publish_ind
         }
 
 **5) dataChannel**
+🛠️ suspending
 
-To make a chatting room, create a room with room_type = "dataroom". Omnitalk server streams messages, which you can simply get by listening to the event. You can see a chatting example, API reference and its usage in [omnitalk.io](https://omnitalk.io/docs/flutter/api-reference)
-
-```
-await omnitalk.createRoom(room_type: "dataroom", secret: secret);
-```
-
-```
-omnitalk.onDataMessage = (event) async {
-    switch (event["textroom"]) {
-      case "join":
-        onDataRoomJoin(event["username"]);
-        getParticipants(event);
-        break;
-      case "message":
-        setState(() {
-          onMessageReceived(event);
-        });
-        break;
-    }
-}
-```
 
 **6) setAudio/Video mute**
 Pass the boolean toggle value as an argument to mute / unmute the audio. To pause or play video use setVideoMute(). It only controls video images not sound. If you want to mute both image and sound, call both methods.
