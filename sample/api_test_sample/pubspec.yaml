@@ -36,7 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   flutter_webrtc: ^0.9.26
-  omnitalk_sdk: ^0.1.23
+  omnitalk_sdk: ^1.1.25
   flutter_ringtone_player: ^3.2.0
 
 dev_dependencies:
