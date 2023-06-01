@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_webrtc: ^0.9.26
   omnitalk_sdk: ^0.1.23
+  flutter_ringtone_player: ^3.2.0
 
 dev_dependencies:
   flutter_test:
