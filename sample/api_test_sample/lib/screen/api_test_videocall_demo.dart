@@ -26,6 +26,9 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
   RTCVideoRenderer remoteVideo = RTCVideoRenderer();
   bool ringtoneOn = false;
   bool answerOn = false;
+  bool videoToggle = true;
+  bool audioToggle = true;
+  bool isCameraSwitched = false;
 
   _VideoCallDemoState()
       : omnitalk = Omnitalk("service id를 입력하세요", "service key를 입력하세요") {
@@ -47,8 +50,6 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
         case "CONNECTED_EVENT":
           setState(() {
             localOn = true;
-          });
-          setState(() {
             remoteOn = true;
           });
           break;
@@ -58,6 +59,7 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
               publish_idx: event["publish_idx"], remoteRenderer: remoteVideo);
           setState(() {
             remoteOn = true;
+            localOn = true;
           });
           break;
       }
@@ -121,6 +123,23 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
 
   _onHangUp() async {
     await omnitalk.leave(SessionID);
+  }
+
+  _onSwtichCamera() async {
+    isCameraSwitched
+        ? await omnitalk.setVideoDevice(SessionID, '1')
+        : await omnitalk.setVideoDevice(SessionID, '0');
+    isCameraSwitched = !isCameraSwitched;
+  }
+
+  _onSetVideoMute() async {
+    await omnitalk.setVideoMute(videoToggle);
+    videoToggle = !videoToggle;
+  }
+
+  _onSetAudioMute() async {
+    await omnitalk.setAudioMute(audioToggle);
+    audioToggle = !audioToggle;
   }
 
   _onLeave() async {
@@ -227,6 +246,52 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
                   height: 100,
                   width: 120,
                   child: const Text('This is to hang up'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => _onSwtichCamera(),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    color: Colors.grey,
+                    height: 100,
+                    width: 120,
+                    child: const Text('Tap to switch camera'),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                onTap: () => {_onSetVideoMute()},
+                child: Container(
+                  color: Colors.grey,
+                  height: 100,
+                  width: 120,
+                  child: const Text('Tap to set video mute (pause)'),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                onTap: () => {_onSetAudioMute()},
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                    color: Colors.grey,
+                    height: 100,
+                    width: 120,
+                    child: const Text('Tap to set audio mute'),
+                  ),
                 ),
               ),
             ],
