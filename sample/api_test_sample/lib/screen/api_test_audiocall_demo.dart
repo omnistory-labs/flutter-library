@@ -25,6 +25,9 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
 
   bool ringtoneOn = false;
   bool answerOn = false;
+  bool audioToggle = true;
+  bool isAudioBack = false;
+  bool isEarpiece = false;
 
   _AudioCallDemoState()
       : omnitalk = Omnitalk("service id를 넣으세요H", "service key를 넣으세요") {
@@ -41,6 +44,8 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
           await _onSetVariables(event);
           break;
         case "CONNECTED_EVENT":
+          ringtoneOn = false;
+          await _onRingtone();
           break;
       }
     };
@@ -58,11 +63,10 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
   }
 
   _onRingtone() {
-    print('ringtone : $ringtoneOn');
     ringtoneOn
         ? FlutterRingtonePlayer.play(
-            android: AndroidSounds.notification,
-            ios: IosSounds.glass,
+            android: AndroidSounds.ringtone,
+            ios: IosSounds.alarm,
             looping: true, // Android only - API >= 28
             volume: 0.8, // Android only - API >= 28
             asAlarm: false, // Android only - all APIs
@@ -100,6 +104,27 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
 
   _onHangUp() async {
     await omnitalk.leave(SessionID);
+  }
+
+  _onSetAudioMute() async {
+    await omnitalk.setAudioMute(audioToggle);
+    audioToggle = !audioToggle;
+  }
+
+  // Get device list first. This is just an example.
+  _onSetAudioInput() async {
+    isAudioBack
+        ? await omnitalk.setAudioInput('2')
+        : await omnitalk.setAudioInput('0');
+    isAudioBack = !isAudioBack;
+  }
+
+// Get device list first. This is just an example.
+  _onSetAudioOutput() async {
+    isEarpiece
+        ? await omnitalk.setAudioOutput('speaker')
+        : await omnitalk.setAudioOutput('earpiece');
+    isEarpiece = !isEarpiece;
   }
 
   _onLeave() async {
@@ -211,38 +236,49 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
           const SizedBox(
             height: 10,
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     Padding(
-          //       padding: const EdgeInsets.all(12),
-          //       child: FloatingActionButton(
-          //         heroTag: "AudioCall",
-          //         backgroundColor: Colors.green,
-          //         onPressed: () => _onAnswerCall(),
-          //         child: const Icon(
-          //           Icons.call,
-          //           color: Colors.white,
-          //         ),
-          //       ),
-          //     ),
-          //     const SizedBox(
-          //       width: 60,
-          //     ),
-          //     Padding(
-          //       padding: const EdgeInsets.all(12),
-          //       child: FloatingActionButton(
-          //         heroTag: "RejectCall",
-          //         backgroundColor: Colors.red,
-          //         onPressed: () => _onHangUp(),
-          //         child: const Icon(
-          //           Icons.call_end,
-          //           color: Colors.white,
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          // ),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => _onSetAudioMute(),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    color: Colors.grey,
+                    height: 100,
+                    width: 120,
+                    child: const Text('Tap to set audio mute'),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                onTap: () => {_onSetAudioInput()},
+                child: Container(
+                  color: Colors.grey,
+                  height: 100,
+                  width: 120,
+                  child: const Text('Tap to select audio input'),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                onTap: () => {_onSetAudioOutput()},
+                child: Container(
+                  color: Colors.grey,
+                  height: 100,
+                  width: 120,
+                  child: const Text('Tap to select autio output'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
