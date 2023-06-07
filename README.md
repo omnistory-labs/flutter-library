@@ -25,7 +25,7 @@ Easy way to integrate flutter_webrtc in your app.
 
 <img src = "./img/fullscreenvideo.jpg" width=250>
 
-<img src = "./img/chattingroom.jpg" width=250>
+<!-- <img src = "./img/chattingroom.jpg" width=250> -->
 </div>
 </div>
 
@@ -55,7 +55,7 @@ how to run sample code
     <img src="./img/example_2.jpg" style="max-width:100%; width:250px;">
   </div>
   <div style="flex:1;">
-    <img src="./img/example_3.jpg" style="max-width:100%; width:250px;">
+    <img src="./img/fullscreenvideo.jpg" style="max-width:100%; width:250px;">
   </div>
 </div>
 
@@ -112,6 +112,8 @@ how to run sample code
 - dataChannel
 - setAudioMute
 - setVideoMute
+- audio call
+- video call
 
 ## Pre-Requisite
 
@@ -132,6 +134,130 @@ Go to android>app>build.gradle in your working directory.
     // minSdkVersion flutter.minSdkVersion
     minSdkVersion 21
 
+<details>
+<summary>for iOS</summary>
+
+Make sure you have added *Info.plist* file to use camera and microphone in your app.
+
+* working directory > ios > Runner > Info.plist
+```
+<key>NSCameraUsageDescription</key>
+<string>$(PRODUCT_NAME) Camera Usage!</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>$(PRODUCT_NAME) Microphone Usage!</string>
+```
+
+Omnitalk SDK depends on permission_handler plugin. To use the plugin you need to list permission macro to your *Podfile*. (https://pub.dev/packages/permission_handler)
+    
+* working directory > ios > Podfile
+    
+    ```ruby
+    # Uncomment this line to define a global platform for your project
+    platform :ios, '11.0'
+    
+    # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+    ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+    
+    project 'Runner', {
+      'Debug' => :debug,
+      'Profile' => :release,
+      'Release' => :release,
+    }
+    
+    def flutter_root
+      generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+      unless File.exist?(generated_xcode_build_settings_path)
+        raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+      end
+    
+      File.foreach(generated_xcode_build_settings_path) do |line|
+        matches = line.match(/FLUTTER_ROOT\=(.*)/)
+        return matches[1].strip if matches
+      end
+      raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig, then run flutter pub get"
+    end
+    
+    require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+    
+    flutter_ios_podfile_setup
+    
+    target 'Runner' do
+      use_frameworks!
+      use_modular_headers!
+    
+      flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+    end
+    
+    post_install do |installer|
+      installer.pods_project.targets.each do |target|
+        flutter_additional_ios_build_settings(target)
+        # Start of the permission_handler configuration
+        target.build_configurations.each do |config|
+       
+          # You can enable the permissions needed here. For example to enable camera
+          # permission, just remove the `#` character in front so it looks like this:
+          #
+          # ## dart: PermissionGroup.camera
+          # 'PERMISSION_CAMERA=1'
+          #
+          #  Preprocessor definitions can be found in: https://github.com/Baseflow/flutter-permission-handler/blob/master/permission_handler_apple/ios/Classes/PermissionHandlerEnums.h
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+            '$(inherited)',
+      
+            ## dart: PermissionGroup.calendar
+            # 'PERMISSION_EVENTS=1',
+      
+            ## dart: PermissionGroup.reminders
+            # 'PERMISSION_REMINDERS=1',
+      
+            ## dart: PermissionGroup.contacts
+            # 'PERMISSION_CONTACTS=1',
+      
+            # dart: PermissionGroup.camera
+            'PERMISSION_CAMERA=1',
+      
+            # dart: PermissionGroup.microphone
+            'PERMISSION_MICROPHONE=1',
+      
+            ## dart: PermissionGroup.speech
+            # 'PERMISSION_SPEECH_RECOGNIZER=1',
+      
+            ## dart: PermissionGroup.photos
+            # 'PERMISSION_PHOTOS=1',
+      
+            ## dart: [PermissionGroup.location, PermissionGroup.locationAlways, PermissionGroup.locationWhenInUse]
+            # 'PERMISSION_LOCATION=1',
+              
+            # dart: PermissionGroup.notification
+            'PERMISSION_NOTIFICATIONS=1',
+      
+            ## dart: PermissionGroup.mediaLibrary
+            # 'PERMISSION_MEDIA_LIBRARY=1',
+      
+            ## dart: PermissionGroup.sensors
+            # 'PERMISSION_SENSORS=1',   
+               
+            # dart: PermissionGroup.bluetooth
+            'PERMISSION_BLUETOOTH=1',
+       
+            ## dart: PermissionGroup.appTrackingTransparency
+            # 'PERMISSION_APP_TRACKING_TRANSPARENCY=1',
+       
+            ## dart: PermissionGroup.criticalAlerts
+            # 'PERMISSION_CRITICAL_ALERTS=1'
+          ]
+      
+        end 
+        # End of the permission_handler configuration
+      end
+    end
+    ```
+
+
+</details>
+
+<br>
+
 ### 1. Visit [omnitalk.io](https://omnitalk.io/demo/video) to get omnitalk service id and service key
 
 <details>
@@ -149,7 +275,7 @@ You can also get a one-hour test key
 Add following lines to `pubspec.yaml` under dependencies
 
     dependencies:
-        omnitalk_sdk: 0.0.1
+        omnitalk_sdk: 1.1.26
         flutter_webrtc ^0.9.24
 
 or you can add it by running code below in terminal.
