@@ -81,7 +81,7 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
   }
 
   _onOfferCall() async {
-    await omnitalk.offercall(
+    await omnitalk.offerCall(
         room_type: "audiocall",
         callee: callee,
         record: false,

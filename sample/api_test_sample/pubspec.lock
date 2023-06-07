@@ -175,10 +175,10 @@ packages:
     dependency: "direct main"
     description:
       name: omnitalk_sdk
-      sha256: ab04b3ca69969f5e30f0e0e15c10efb38c511daebde548933cbcbb3ba7fdd56e
+      sha256: a04a057545554d8a15d755c83798ab315da38d57b9bc7259ef820e440f426c42
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.25"
+    version: "1.1.26"
   path:
     dependency: transitive
     description:

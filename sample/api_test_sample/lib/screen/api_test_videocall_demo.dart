@@ -98,7 +98,7 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
   }
 
   _onOfferCall() async {
-    await omnitalk.offercall(
+    await omnitalk.offerCall(
         room_type: "videocall",
         callee: callee,
         record: false,
