@@ -112,7 +112,7 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
   }
 
   _onRejectCall() async {
-    await omnitalk.leave(session: callerSession);
+    await omnitalk.leave();
   }
 
   _onHangUp() async {

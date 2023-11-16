@@ -172,7 +172,7 @@ class _FlutterDemoState extends State<FlutterDemo> {
   }
 
   _onLeave() async {
-    await omnitalk.leave(session: sessionId);
+    await omnitalk.leave();
 
     setState(() {
       displayOn = false;

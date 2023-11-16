@@ -113,7 +113,7 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
 
   _onOfferCall() async {
     await omnitalk.offerCall(
-       callType: CallType.videocall, callee: callee!,record: false, localRenderer: localVideo,  remoteRenderer: remoteVideo1);
+       callType: CallType.videocall, callee: callee!, localRenderer: localVideo,  remoteRenderer: remoteVideo1);
     localOn = true;
     hasCalleeEntered = true;
   }
@@ -126,7 +126,7 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
   }
 
   _onRejectCall() async {
-    await omnitalk.leave(session: callerSession);
+    await omnitalk.leave();
   }
 
   _onHangUp() async {
