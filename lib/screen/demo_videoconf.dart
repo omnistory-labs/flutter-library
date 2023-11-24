@@ -93,7 +93,6 @@ class _VideoConferenceDemoState extends State<VideoConferenceDemo> {
 
   _onLeave() async {
     await omnitalk.leave();
-    // _inputController.dispose();
     await localVideo.dispose();
   }
 

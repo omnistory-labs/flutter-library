@@ -15,15 +15,15 @@ class VideoCallDemo extends StatefulWidget {
 
 class _VideoCallDemoState extends State<VideoCallDemo> {
   Omnitalk omnitalk = Omnitalk.getInstance();
-  String userId = "omnitalk";
+  String userId = "video-tester";
   String sessionId = '';
   String roomId = '';
   String roomType = '';
   String? callee;
   String? caller;
   String? callerSession;
-  final TextEditingController _inputController = TextEditingController();
-  final FocusNode focusnode = FocusNode();
+  TextEditingController _inputController = TextEditingController();
+  FocusNode focusnode = FocusNode();
   Timer? _debounce;
   bool hasCalleeEntered = false;
 
@@ -38,7 +38,7 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
   bool videoToggle = true;
   bool audioToggle = true;
   bool isCameraSwitched = false;
-  final List<dynamic> audioList = [];
+  List<dynamic> audioList = [];
   String selectedAudio = '';
   bool isDropdonwSelected = false;
 
@@ -56,6 +56,7 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
             debugPrint('${event['caller']} is calling ${event['callee']}');
             setState(() {
               localOn = true;
+             
             });
             break;
           case "CONNECTED_EVENT":
@@ -89,7 +90,9 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
   }
 
   _onRingingVariables(event) {
-    caller = event['caller'];
+    setState(() {
+      caller = event['caller'];
+    });
     debugPrint('ringing event from user_id : ${event['user_id']} ');
   }
 
@@ -134,9 +137,11 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
   }
 
   _onSwtichCamera() async {
-    // get device list first, and pass the video device id you select
-    // it differs depending on the device
-    // final devices = await omnitalk.getDeviceList();
+    /* 
+    get device list first, and pass the video device id you select
+    it differs depending on the device
+    final devices = await omnitalk.getDeviceList();
+    */
     isCameraSwitched
         ? await omnitalk.switchVideo(deviceId: '1')
         : await omnitalk.switchVideo(deviceId: '0');
@@ -335,11 +340,8 @@ class _VideoCallDemoState extends State<VideoCallDemo> {
             child: ElevatedButton(
               onPressed: () async {
                 await _onLeave();
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => HomeScreen()));
               },
-              
-              child: const Text('채널 나가기'),
+              child: const Text('leave'),
             ),
           ),
         ],

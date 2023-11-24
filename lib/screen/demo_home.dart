@@ -9,7 +9,7 @@ import 'package:omnitalk_sdk/omnitalk_sdk.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key) {
     Omnitalk.sdkInit(
-        serviceId: 'Service id', serviceKey: 'Service key');
+        serviceId: 'FM51-HITX-IBPG-QN7H', serviceKey: 'FWIWblAEXpbIims');
   }
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
                   backgroundColor: MaterialStatePropertyAll(
                       Color.fromARGB(255, 255, 123, 0))),
               child: const Text(
-                'Basic Fuction Test',
+                'Basic Function Test',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
               ),
             ),

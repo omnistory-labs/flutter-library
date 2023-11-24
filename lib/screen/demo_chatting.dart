@@ -334,10 +334,9 @@ class _ChattingDemoState extends State<ChattingDemo> {
             child: ElevatedButton(
               onPressed: () async {
                 await _onLeave();
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => HomeScreen()));
+                
               },
-              child: const Text('채널 나가기'),
+              child: const Text('leave'),
             ),
           ),
         ],

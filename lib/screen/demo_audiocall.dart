@@ -21,8 +21,8 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
   String? callee;
   String? caller;
   String? callerSession;
-  final TextEditingController _inputController = TextEditingController();
-  final FocusNode focusnode = FocusNode();
+  TextEditingController _inputController = TextEditingController();
+  FocusNode focusnode = FocusNode();
   Timer? _debounce;
   bool hasCalleeEntered = false;
 
@@ -37,7 +37,7 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
   bool videoToggle = true;
   bool audioToggle = true;
   bool isCameraSwitched = false;
-  final List<dynamic> audioList = [];
+  List<dynamic> audioList = [];
   String selectedAudio = '';
   bool isDropdonwSelected = false;
 
@@ -147,6 +147,37 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
 
   _onLeave() async {
     await omnitalk.leave();
+    setState(() {
+      freeResources();
+    });
+  }
+
+  freeResources() {
+    userId = "audio-tester";
+    sessionId = '';
+    roomId = '';
+    roomType = '';
+    callee = '';
+    caller = '';
+    callerSession = '';
+    _inputController = TextEditingController();
+    focusnode = FocusNode();
+    _debounce?.cancel();
+    hasCalleeEntered = false;
+
+    localOn = false;
+    remoteOn = false;
+    localVideo = RTCVideoRenderer();
+    localAudio = RTCVideoRenderer();
+    remoteVideo1 = RTCVideoRenderer();
+
+    answerOn = false;
+    videoToggle = true;
+    audioToggle = true;
+    isCameraSwitched = false;
+    audioList = [];
+    selectedAudio = '';
+    isDropdonwSelected = false;
   }
 
   @override
@@ -298,11 +329,9 @@ class _AudioCallDemoState extends State<AudioCallDemo> {
             child: ElevatedButton(
               onPressed: () async {
                 await _onLeave();
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => HomeScreen()));
               },
               
-              child: const Text('채널 나가기'),
+              child: const Text('leave'),
             ),
           ),
         ],

@@ -12,9 +12,6 @@ class FlutterDemo extends StatefulWidget {
 class _FlutterDemoState extends State<FlutterDemo> {
   Omnitalk omnitalk = Omnitalk.getInstance();
   Map<String, bool> flag = {};
-  // String user_id = 'tester_ellie15';
-  String roomSubject = 'test room14';
-
   String sessionId = '';
   String roomId = '';
   Map<String, dynamic>? roomObj;
@@ -27,9 +24,10 @@ class _FlutterDemoState extends State<FlutterDemo> {
   RTCVideoRenderer remoteVideo = RTCVideoRenderer();
 
   List partiList = [];
+  String? selectedPublisher = ' ';
 
-  final TextEditingController _inputController = TextEditingController();
   String? publisherSession;
+  List publishList = [];
 
   // var session;
 
@@ -72,32 +70,38 @@ class _FlutterDemoState extends State<FlutterDemo> {
   dynamic _onCreateSession() async {
     await omnitalk.getPermission();
     var session = await omnitalk.createSession();
-   print(session);
+    print('session : ');
+    print(session);
     // sessionId = session["session"];
-    var roomlist = await omnitalk.roomList();
     var devices = await omnitalk.getDeviceList();
+    print('device : ');
     print(devices);
   }
 
   dynamic _onCreateRoom() async {
-    roomObj = await omnitalk.createRoom(roomType: RoomType.videoroom);
-    roomId = roomObj?["room_id"];
+    try {
+      roomObj = await omnitalk.createRoom(roomType: RoomType.videoroom);
+      setState(() {
+        roomId = roomObj?["room_id"];
+      });
+    } catch (err) {
+      throw Error();
+    }
   }
 
   dynamic _onJoinRoom() async {
-    joinResult = await omnitalk.joinRoom(roomId: roomId);
-
-    print(joinResult);
+    try {
+      await omnitalk.joinRoom(roomId: roomId);
+    } catch (err) {
+      throw Error();
+    }
   }
 
-  _onCreateJoinRoom() async {
-    await _onCreateRoom();
-    await _onJoinRoom();
-  }
 
   dynamic _onPublish() async {
     var publishResult = await omnitalk.publish(localRenderer: localVideo);
     print('publish result session: ${publishResult['session']}');
+    print('is sessionId == ${publishResult['session']}');
     print(sessionId == publishResult['session']);
     setState(() {
       displayOn = true;
@@ -105,23 +109,31 @@ class _FlutterDemoState extends State<FlutterDemo> {
   }
 
   dynamic _onSubscribe() async {
-    if (publisherSession != null) {
-      var subResult = await omnitalk.subscribe(
-          publisherSession: publisherSession!, remoteRenderer: remoteVideo);
-      setState(() {
-        remoteOn = true;
-      });
-      print('subscribe result : $subResult');
+    try {
+      if (selectedPublisher != null) {
+        var subResult = await omnitalk.subscribe(
+            publisherSession: selectedPublisher!, remoteRenderer: remoteVideo);
+        setState(() {
+          remoteOn = true;
+        });
+        print('subscribe result : $subResult');
+      }
+    } catch (err) {
+      throw Error();
     }
   }
 
   dynamic _onUnsubscribe() async {
-    if (publisherSession != null) {
+    try {
+        if (selectedPublisher != null) {
       var result =
-          await omnitalk.unsubscribe(publisherSession: publisherSession!);
+          await omnitalk.unsubscribe(publisherSession: selectedPublisher!);
       print(result);
     } else {
-      print('Invalid unsubscribe, $publisherSession');
+      print('Invalid unsubscribe, ${selectedPublisher}');
+    }
+    } catch (err) {
+        throw Error();
     }
   }
 
@@ -131,17 +143,41 @@ class _FlutterDemoState extends State<FlutterDemo> {
   }
 
   _onPublishList() async {
-    var result = await omnitalk.publishList();
-    print(result);
+    try {
+      var result = await omnitalk.publishList();
+      setState(() {
+        publishList = result['list'];
+      });
+    } catch (err) {
+      throw Error();
+    }
   }
 
-  _onPartiList() async {
-    var result = await omnitalk.partiList();
-    print(result);
+  DropdownButton<Object> onDropDown(List<dynamic> publishList) {
+    return DropdownButton(
+      hint: const Text('Select'),
+      value: publishList.any((item) => item["session"] == selectedPublisher)
+          ? selectedPublisher
+          : null,
+      items: publishList.isNotEmpty
+          ? publishList.map((item) {
+              return DropdownMenuItem(
+                value: item["session"],
+                child: Text(item["session"]),
+              );
+            }).toList()
+          : null,
+      onChanged: (value) {
+        setState(() {
+          selectedPublisher = value as String;
+        });
+      },
+      iconEnabledColor: Colors.orange,
+      iconDisabledColor: Colors.grey,
+    );
   }
 
   _onSetAudioMute() async {
-   
     await omnitalk.setMute(track: TrackType.audio);
   }
 
@@ -173,10 +209,32 @@ class _FlutterDemoState extends State<FlutterDemo> {
 
   _onLeave() async {
     await omnitalk.leave();
-
+    
     setState(() {
-      displayOn = false;
+      _freeResources();
     });
+  }
+
+  _freeResources() {
+    flag = {};
+    roomId = '';
+    roomObj = {};
+    joinResult = {};
+    publishResult = {};
+    publishIdx = 0;
+    localVideo = RTCVideoRenderer();
+    remoteVideo = RTCVideoRenderer();
+    partiList = [];
+    selectedPublisher = ' ';
+    publisherSession = '';
+    publishList = [];
+    displayOn = false;
+    remoteOn = false;
+    toggle = true;
+    subSessions = [];
+    isCameraSwitched = false;
+    isAudioBack = false;
+    isEarpiece = false;
   }
 
   @override
@@ -192,170 +250,187 @@ class _FlutterDemoState extends State<FlutterDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'BASIC API TEST',
-          style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text(
+            'BASIC API TEST',
+            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.orange[900],
+          elevation: 2,
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.orange[900],
-        elevation: 2,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                    onPressed: _onCreateSession,
-                    child: const Text('create session')),
-                const SizedBox(
-                  width: 10,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                        onPressed: _onCreateSession,
+                        child: const Text('create session')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                        onPressed: _onCreateRoom,
+                        child: const Text('create room')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                        onPressed: _onJoinRoom, child: const Text('join room')),
+                  ],
                 ),
-                ElevatedButton(
-                    onPressed: _onCreateRoom, child: const Text('create room')),
-                const SizedBox(
-                  width: 10,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('roomId : $roomId'),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                        onPressed: _onPublish, child: const Text('publish')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                        // onPressed: _onSubscribe, child: const Text('subscribe')
+                        onPressed: _onPublishList,
+                        child: const Text('publish list')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                    onPressed: _onJoinRoom, child: const Text('join room')),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                    onPressed: _onPublish, child: const Text('publish')),
-                const SizedBox(
-                  width: 10,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [onDropDown(publishList)],
                 ),
-                ElevatedButton(
-                    onPressed: _onSubscribe, child: const Text('subscribe')),
-                const SizedBox(
-                  width: 10,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                        onPressed: _onSubscribe,
+                        child: const Text('Subscribe')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                        onPressed: _onUnsubscribe,
+                        child: const Text('Unsubscribe')),
+                  ],
                 ),
-                ElevatedButton(
-                    onPressed: _onUnsubscribe,
-                    child: const Text('unsubscribe')),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                    onPressed: _onRoomList, child: const Text('room list')),
-                const SizedBox(
-                  width: 10,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                        onPressed: _onSetAudioMute,
+                        child: const Text('Audio Mute')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                        onPressed: _onSetAudioUnmute,
+                        child: const Text('Audio Unmute')),
+                  ],
                 ),
-                ElevatedButton(
-                    onPressed: _onPublishList,
-                    child: const Text('publish list')),
-                const SizedBox(
-                  width: 10,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                        onPressed: _onSetVideoMute,
+                        child: const Text('Video Mute')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                        onPressed: _onSetVideoUnmute,
+                        child: const Text('Video Unmute'))
+                  ],
                 ),
-                ElevatedButton(
-                    onPressed: _onPartiList, child: const Text('parti list'))
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                    onPressed: _onSetAudioMute,
-                    child: const Text('Audio Mute')),
-                const SizedBox(
-                  width: 10,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Container(
+                      color: Colors.grey,
+                      height: 180,
+                      width: 160,
+                      child: displayOn ? RTCVideoView(localVideo, objectFit: RTCVideoViewObjectFit
+                                  .RTCVideoViewObjectFitCover,
+                            ) : null,
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                        color: Colors.grey,
+                        height: 180,
+                        width: 160,
+                        child: remoteOn ? RTCVideoView(remoteVideo, objectFit: RTCVideoViewObjectFit
+                                    .RTCVideoViewObjectFitCover,
+                              ) : null),
+                  ],
                 ),
-                ElevatedButton(
-                    onPressed: _onSetAudioUnmute,
-                    child: const Text('Audio Unmute'))
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                    onPressed: _onSetVideoMute,
-                    child: const Text('Video Mute')),
-                const SizedBox(
-                  width: 10,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await _onDestroy();
+                  },
+                  child: const Text('Destroy Room'),
                 ),
-                ElevatedButton(
-                    onPressed: _onSetVideoUnmute,
-                    child: const Text('Video Unmute'))
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Container(
-                  color: Colors.grey,
-                  height: 180,
-                  width: 160,
-                  child: displayOn ? RTCVideoView(localVideo) : null,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await _onLeave();
+                  },
+                  child: const Text('leave'),
                 ),
-                const SizedBox(
-                  width: 20,
-                ),
-                Container(
-                    color: Colors.grey,
-                    height: 180,
-                    width: 160,
-                    child: remoteOn ? RTCVideoView(remoteVideo) : null),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () async {
-                await _onDestroy();
-              },
-              child: const Text('Destroy Room'),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () async {
-                await _onLeave();
-              },
-              child: const Text('채널 나가기'),
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 }

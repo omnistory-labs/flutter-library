@@ -76,7 +76,9 @@ Flutter app 실행을 위해 Android Studio와 Xcode가 미리 설치되어 있�
 demo_chatting | Audio & Chatting | sendMessage | 음성회의 + 채팅|
 |demo_videoconference|Video Conference|publish, subscribe|1:1/다자간 영상 회의|
 
+* 구현 전 pub - sub 관계를 이해하면 좋습니다. 
 
+  video subscribe를 하기 위해선 같은 room id의 룸에 참여해 자신의 방송을 publish 한 사람의 session이 필요합니다. (publishList()로 조회)
 ## Documentation
 
 쉽고 자세한 [문서](https://docs.omnitalk.io/flutter)를 제공하고 있습니다.
