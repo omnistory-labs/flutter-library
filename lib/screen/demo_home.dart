@@ -9,7 +9,7 @@ import 'package:omnitalk_sdk/omnitalk_sdk.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key) {
     Omnitalk.sdkInit(
-        serviceId: 'FM51-HITX-IBPG-QN7H', serviceKey: 'FWIWblAEXpbIims');
+        serviceId: 'serviceId', serviceKey: 'serviceKey');
   }
   @override
   Widget build(BuildContext context) {
